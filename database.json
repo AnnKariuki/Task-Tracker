@@ -1,1 +1,16 @@
-{"description": "Buy a car", "time_created": "2026-08-11 22:27:02", "time_updated": "2026-08-11 22:27:02", "status": "in_progress"}{"description": "Buy a car", "time_created": "2026-08-11 22:32:36", "time_updated": "2026-08-11 22:32:36", "status": "todo"}{"description": "Buy a car", "time_created": "2026-08-11 22:32:38", "time_updated": "2026-08-11 22:32:38", "status": "todo"}
+[
+    {
+        "id": "ec49c133-d001-4f17-bffe-4b1c52ea9ec6",
+        "description": "Buy a task",
+        "createdAt": "2026-08-12 22:59:23",
+        "updatedAt": "2026-08-12 22:59:23",
+        "status": "todo"
+    },
+    {
+        "id": "9801c040-6a82-4ad5-9645-53dcbef8366f",
+        "description": "Buy a car",
+        "createdAt": "2026-08-12 22:59:38",
+        "updatedAt": "2026-08-12 22:59:38",
+        "status": "todo"
+    }
+]
