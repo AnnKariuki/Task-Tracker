@@ -6,21 +6,6 @@ import uuid
 from pathlib import Path
 import sys
 
-# def initial_databse_setup(base_func):
-#     def enhanced_func():
-#         initial_data = []
-#         try:
-#             with open("database.json", "r+") as file:
-#                 contents = file.read()
-#                 if not contents:
-#                     file.write(json.dumps(initial_data))
-#         except IOError as e:
-#             print(f"File write failed: {e}")
-#         base_func()
-#     return enhanced_func
-
-
-
 def populate_database():
     initial_data = []
     try:
@@ -47,7 +32,6 @@ def is_database_empty() -> bool:
 
 
 def add_task(description):
-    # task, time created, time updated, status
     dt = datetime.datetime.now()
     dt_str = dt.strftime("%Y-%m-%d %H:%M:%S")
     task_id = str(uuid.uuid4())
@@ -74,14 +58,12 @@ def add_task(description):
         sys.exit(1)
     print(F"Task added successfully (ID:{task_id} )")
 
-# @initial_databse_setup
 def main() -> None:
-    parser = argparse.ArgumentParser("Welcome to taskly. Your one stop shop to track and manage your tasks")
-    parser.add_argument("add", help="use 'add' keyword to add a task")
-    parser.add_argument("description", help="describe your task")
+    parser = argparse.ArgumentParser(prog="Taskly", description="Welcome to taskly. Your one stop shop to track and manage your tasks", epilog="Thanks for visiting")
+    parser.add_argument('action', choices=['add', 'update'], help="What action would you like to perform")
+    # choices didn't work because I need different arguments for each choice. how could they do update taskid when description is required
+    parser.add_argument("description", help="what's the task?")
     args = parser.parse_args()
-    if args.add != "add":
-        raise ValueError("the command to add a task is add")
     add_task(args.description)
 
 main()
