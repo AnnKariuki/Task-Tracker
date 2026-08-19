@@ -1,51 +1,16 @@
 [
     {
-        "id": "ec49c133-d001-4f17-bffe-4b1c52ea9ec6",
-        "description": "Buy a task",
-        "createdAt": "2026-08-12 22:59:23",
-        "updatedAt": "2026-08-12 22:59:23",
-        "status": "todo"
-    },
-    {
-        "id": "9801c040-6a82-4ad5-9645-53dcbef8366f",
-        "description": "Buy a car",
-        "createdAt": "2026-08-12 22:59:38",
-        "updatedAt": "2026-08-12 22:59:38",
-        "status": "todo"
-    },
-    {
-        "id": "4b382ca2-1516-468d-977f-cdc3bdd92f62",
-        "description": "Buy a car",
-        "createdAt": "2026-08-12 23:11:34",
-        "updatedAt": "2026-08-12 23:11:34",
-        "status": "todo"
-    },
-    {
-        "id": "e9088fb1-bd87-4a2c-aea4-4af248453e7f",
-        "description": "Buy a car",
-        "createdAt": "2026-08-12 23:11:45",
-        "updatedAt": "2026-08-12 23:11:45",
-        "status": "todo"
-    },
-    {
-        "id": "88add8b4-f87f-40b8-9290-fe73399e9e20",
-        "description": "Buy a car",
-        "createdAt": "2026-08-12 23:29:52",
-        "updatedAt": "2026-08-12 23:29:52",
-        "status": "todo"
-    },
-    {
-        "id": "5945b2d6-7187-4a1b-99e1-1e8b5b0a877a",
-        "description": "buy a car",
-        "createdAt": "2026-08-18 20:56:42",
-        "updatedAt": "2026-08-18 20:56:42",
-        "status": "todo"
-    },
-    {
-        "id": "497d6a32-2768-4bff-ae56-6009a00f5e42",
+        "id": "1",
         "description": "buy a boat",
-        "createdAt": "2026-08-18 21:06:37",
-        "updatedAt": "2026-08-18 21:06:37",
+        "createdAt": "2026-08-18 21:47:45",
+        "updatedAt": "2026-08-18 21:47:45",
+        "status": "todo"
+    },
+    {
+        "id": "2",
+        "description": "buy a car",
+        "createdAt": "2026-08-18 21:48:02",
+        "updatedAt": "2026-08-18 21:48:02",
         "status": "todo"
     }
 ]

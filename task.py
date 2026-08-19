@@ -6,7 +6,17 @@ import uuid
 from pathlib import Path
 import sys
 
-def populate_database():
+def get_db_size()-> int:
+    try:
+        with open("database.json","r") as file:
+            contents = json.load(file)
+            db_size = len(contents)
+    except IOError as e:
+        print(f"having trouble getting length of file: {e}")
+        sys.exit(1)
+    return db_size
+
+def populate_database() -> None:
     initial_data = []
     try:
         with open("database.json", "w") as file:
@@ -31,10 +41,12 @@ def is_database_empty() -> bool:
     return False
 
 
-def add_task(args):
+def add_task(args) -> None:
+    if is_database_empty():
+        populate_database()
     dt = datetime.datetime.now()
     dt_str = dt.strftime("%Y-%m-%d %H:%M:%S")
-    task_id = str(uuid.uuid4())
+    task_id = str(get_db_size()+ 1)
     task = {
         "id":task_id,
         "description": args.new_description,
@@ -42,8 +54,6 @@ def add_task(args):
         "updatedAt": dt_str,
         "status": "todo"
     }
-    if is_database_empty():
-        populate_database()
 
     try:
         with open("database.json", "r+") as file:
@@ -56,9 +66,9 @@ def add_task(args):
     except (IOError, json.JSONDecodeError) as e:
         print(f"Error while handling the database file: {e}")
         sys.exit(1)
-    print(F"Task added successfully (ID:{task_id} )")
+    print(F"Task added successfully (ID:{task_id})")
 
-def update_task(args):
+def update_task(args) -> None:
     print(args.task_id)
     print(args.updated_description)
 
