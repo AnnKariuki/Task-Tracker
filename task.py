@@ -2,7 +2,6 @@
 import argparse
 import json
 import datetime
-import uuid
 from pathlib import Path
 import sys
 
@@ -64,14 +63,31 @@ def add_task(args) -> None:
             file.seek(0)
             json.dump(data, file, indent=4)
     except (IOError, json.JSONDecodeError) as e:
-        print(f"Error while handling the database file: {e}")
+        print(f"Error while adding task to the database file: {e}")
         sys.exit(1)
     print(F"Task added successfully (ID:{task_id})")
 
 def update_task(args) -> None:
-    print(args.task_id)
-    print(args.updated_description)
+    if is_database_empty():
+        print('No tasks in database')
+        return
+    try:
+        with open('database.json', 'r+') as file:
+            data = json.loads(file.read())
+            dt = datetime.datetime.now()
+            dt_str = dt.strftime("%Y-%m-%d %H:%M:%S")
+            for dictionary in data:
+                if dictionary["id"] == args.task_id:
+                    dictionary["description"] = args.updated_description
+                    dictionary["updatedAt"] = dt_str
+                    break
+            file.seek(0)
+            json.dump(data, file, indent=4)
+    except (IOError, json.JSONDecodeError) as e:
+        print(f"Error while updating task in the database file: {e}")
+        sys.exit(1)
 
+        
 def main() -> None:
     parser = argparse.ArgumentParser(prog="Taskly", description="Welcome to taskly. Your one stop shop to track and manage your tasks", epilog="Thanks for visiting")
     subparsers = parser.add_subparsers(title="What you can do in taskly")
