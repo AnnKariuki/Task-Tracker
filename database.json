@@ -33,5 +33,19 @@
         "createdAt": "2026-08-12 23:29:52",
         "updatedAt": "2026-08-12 23:29:52",
         "status": "todo"
+    },
+    {
+        "id": "5945b2d6-7187-4a1b-99e1-1e8b5b0a877a",
+        "description": "buy a car",
+        "createdAt": "2026-08-18 20:56:42",
+        "updatedAt": "2026-08-18 20:56:42",
+        "status": "todo"
+    },
+    {
+        "id": "497d6a32-2768-4bff-ae56-6009a00f5e42",
+        "description": "buy a boat",
+        "createdAt": "2026-08-18 21:06:37",
+        "updatedAt": "2026-08-18 21:06:37",
+        "status": "todo"
     }
 ]
