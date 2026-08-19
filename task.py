@@ -8,7 +8,7 @@ import sys
 def get_db_size()-> int:
     try:
         with open("database.json","r") as file:
-            contents = json.load(file)
+            contents = json.loads(file.read())
             db_size = len(contents)
     except IOError as e:
         print(f"having trouble getting length of file: {e}")
@@ -76,11 +76,16 @@ def update_task(args) -> None:
             data = json.loads(file.read())
             dt = datetime.datetime.now()
             dt_str = dt.strftime("%Y-%m-%d %H:%M:%S")
+            updated = False
             for dictionary in data:
                 if dictionary["id"] == args.task_id:
                     dictionary["description"] = args.updated_description
                     dictionary["updatedAt"] = dt_str
+                    updated = True
                     break
+            if updated == False:
+                print("Task does not exist in database")
+                sys.exit(0)
             file.seek(0)
             json.dump(data, file, indent=4)
     except (IOError, json.JSONDecodeError) as e:
@@ -96,7 +101,7 @@ def main() -> None:
     add_subparser.add_argument('new_description')
     add_subparser.set_defaults(func=add_task)
 
-    update_subparser = subparsers.add_parser('update', help='To update a task run: program_name task_id updated_description')
+    update_subparser = subparsers.add_parser('update', help='To update a task run: program_name update task_id updated_description')
     update_subparser.add_argument('task_id')
     update_subparser.add_argument('updated_description')
     update_subparser.set_defaults(func=update_task)
