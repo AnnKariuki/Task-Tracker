@@ -10,7 +10,7 @@ def get_db_size()-> int:
         with open("database.json","r") as file:
             contents = json.loads(file.read())
             db_size = len(contents)
-    except IOError as e:
+    except (IOError, json.JSONDecodeError) as e:
         print(f"having trouble getting length of file: {e}")
         sys.exit(1)
     return db_size
@@ -65,7 +65,7 @@ def add_task(args) -> None:
     except (IOError, json.JSONDecodeError) as e:
         print(f"Error while adding task to the database file: {e}")
         sys.exit(1)
-    print(F"Task added successfully (ID:{task_id})")
+    print(f"Task added successfully (ID:{task_id})")
 
 def update_task(args) -> None:
     if is_database_empty():
@@ -83,14 +83,20 @@ def update_task(args) -> None:
                     dictionary["updatedAt"] = dt_str
                     updated = True
                     break
-            if updated == False:
+            if not updated:
                 print("Task does not exist in database")
                 sys.exit(1)
             file.seek(0)
             json.dump(data, file, indent=4)
+            file.truncate()
     except (IOError, json.JSONDecodeError) as e:
         print(f"Error while updating task in the database file: {e}")
         sys.exit(1)
+
+def delete_task(args) -> None:
+    if is_database_empty():
+        print('No tasks in database')
+        return
 
         
 def main() -> None:
@@ -108,6 +114,10 @@ def main() -> None:
     update_subparser.add_argument('task_id')
     update_subparser.add_argument('updated_description')
     update_subparser.set_defaults(func=update_task)
+
+    update_subparser = subparsers.add_parser('delete', help='To delete a task run: program_name delete task_id')
+    update_subparser.add_argument('task_id')
+    update_subparser.set_defaults(func=delete_task)
 
     # parse the args and call whatever function was selected
     args = parser.parse_args()
