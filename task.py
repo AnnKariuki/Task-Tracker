@@ -85,7 +85,7 @@ def update_task(args) -> None:
                     break
             if updated == False:
                 print("Task does not exist in database")
-                sys.exit(0)
+                sys.exit(1)
             file.seek(0)
             json.dump(data, file, indent=4)
     except (IOError, json.JSONDecodeError) as e:
@@ -94,9 +94,12 @@ def update_task(args) -> None:
 
         
 def main() -> None:
+    # 1. Create top-level parser
     parser = argparse.ArgumentParser(prog="Taskly", description="Welcome to taskly. Your one stop shop to track and manage your tasks", epilog="Thanks for visiting")
-    subparsers = parser.add_subparsers(title="What you can do in taskly")
+    # 2. Add subparsers container. subcommand must be provided
+    subparsers = parser.add_subparsers(title="What you can do in taskly", required=True)
 
+    # 3. Define the 'add' subcommand
     add_subparser = subparsers.add_parser('add', help='To add a task run: program_name add task_description')
     add_subparser.add_argument('new_description')
     add_subparser.set_defaults(func=add_task)
