@@ -1,9 +1,9 @@
 [
     {
         "id": "1",
-        "description": "buy a jet",
+        "description": "rich",
         "createdAt": "2026-08-19 20:52:47",
-        "updatedAt": "2026-08-19 22:12:59",
+        "updatedAt": "2026-08-19 22:42:26",
         "status": "todo"
     },
     {
@@ -20,5 +20,4 @@
         "updatedAt": "2026-08-19 20:53:04",
         "status": "todo"
     }
-]   }
 ]
