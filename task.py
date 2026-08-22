@@ -133,9 +133,9 @@ def main() -> None:
     update_subparser.add_argument('updated_description')
     update_subparser.set_defaults(func=update_task)
 
-    update_subparser = subparsers.add_parser('delete', help='To delete a task run: program_name delete task_id')
-    update_subparser.add_argument('task_id')
-    update_subparser.set_defaults(func=delete_task)
+    delete_subparser = subparsers.add_parser('delete', help='To delete a task run: program_name delete task_id')
+    delete_subparser.add_argument('task_id')
+    delete_subparser.set_defaults(func=delete_task)
 
     # parse the args and call whatever function was selected
     args = parser.parse_args()
