@@ -157,12 +157,39 @@ def update_status(new_status, task_id):
     except (IOError, json.JSONDecodeError) as e:
         print(f"Had trouble updating the status of your task: {e}")    
         sys.exit(1)
-  
+
+def list_tasks(args) -> None:
+    if is_database_empty():
+        print('No tasks in database')
+        return
+    try:
+        with open("database.json", "r") as file:
+            data = json.load(file)
+            if not args.status:
+                full_list = data
+            else:
+                full_list = [task for task in data if task["status"] == args.status]
+            if not full_list:
+                print(f"No task with status {args.status}")
+            else:
+                # print(*full_list, sep='\n')
+                # pretty print
+                for task in full_list:
+                    print(f"ID: {task['id']}")
+                    print(f"description: {task['description']}")
+                    print(f"created at: {task['createdAt']}")
+                    print(f"updated at: {task['updatedAt']}")
+                    print(f"status: {task['status']}")
+                    print("\n")
+
+    except (IOError, json.JSONDecodeError) as e:
+        print(f"error listing your tasks: {e}")
+
 def main() -> None:
     # 1. Create top-level parser
     parser = argparse.ArgumentParser(prog="Taskly", description="Welcome to taskly. Your one stop shop to track and manage your tasks", epilog="Thanks for visiting")
     # 2. Add subparsers container. subcommand must be provided
-    subparsers = parser.add_subparsers(title="What you can do in taskly", required=True)
+    subparsers = parser.add_subparsers(title="What you can do in taskly",  description="Run any command with -h for more information, e.g. 'Taskly list -h'", required=True)
 
     # 3. Define the 'add' subcommand
     add_subparser = subparsers.add_parser('add', help='To add a task run: program_name add task_description')
@@ -185,6 +212,10 @@ def main() -> None:
     mark_done_subparser = subparsers.add_parser('mark-done', help='To mark a task as done run: program_name mark-done task_id')
     mark_done_subparser.add_argument('task_id')
     mark_done_subparser.set_defaults(func=mark_task_done)
+
+    list_subparser = subparsers.add_parser( 'list', help='To list tasks run: program_name list [status]')
+    list_subparser.add_argument('status', nargs='?', choices=['todo', 'in-progress', 'done'],  help="Filter tasks by status: todo, in-progress, or done")
+    list_subparser.set_defaults(func=list_tasks)
 
     # parse the args and call whatever function was selected
     args = parser.parse_args()
