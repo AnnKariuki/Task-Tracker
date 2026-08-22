@@ -90,13 +90,31 @@ def update_task(args) -> None:
             json.dump(data, file, indent=4)
             file.truncate()
     except (IOError, json.JSONDecodeError) as e:
-        print(f"Error while updating task in the database file: {e}")
+        print(f"Error while updating task in the database: {e}")
         sys.exit(1)
 
 def delete_task(args) -> None:
     if is_database_empty():
         print('No tasks in database')
         return
+    try:
+        with open('database.json', "r+") as file:
+            data = json.load(file)
+            deleted = False
+            for task in data:
+                if task["id"] == args.task_id:
+                    data.remove(task)
+                    deleted = True
+                    break
+            if not deleted:
+                print(f"There is no item with id {args.task_id} in our system")
+                sys.exit(1)
+            file.seek(0)
+            json.dump(data, file, indent=4)
+            file.truncate()
+    except IOError as e:
+        print(f"Error while deleting your task in database: {e}")
+        sys.exit(1)
 
         
 def main() -> None:
