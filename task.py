@@ -5,11 +5,19 @@ import datetime
 from pathlib import Path
 import sys
 
+DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+def current_timestamp() -> str:
+    dt = datetime.datetime.now()
+    dt_str = dt.strftime(DATE_FORMAT)
+    return dt_str
+
 def highest_id() -> int:
     data = load_database()
     max_id = 0
     for task in data:
-        max_id = max(int(task["id"]), max_id)
+        if "id" in task and (task['id']).isdigit():
+            max_id = max(int(task["id"]), max_id)
     return max_id
 
 def populate_database() -> None:
@@ -42,19 +50,16 @@ def is_database_empty() -> bool:
 def add_task(args) -> None:
     if is_database_empty():
         populate_database()
-    dt = datetime.datetime.now()
-    dt_str = dt.strftime("%Y-%m-%d %H:%M:%S")
+    current_time = current_timestamp()
     task_id = str(highest_id()+ 1)
     task = {
         "id":task_id,
         "description": args.new_description,
-        "createdAt": dt_str,
-        "updatedAt": dt_str,
+        "createdAt": current_time,
+        "updatedAt": current_time,
         "status": "todo"
     }
     data = load_database()
-    if not isinstance(data, list):
-        data = []
     data.append(task)
     save_database(data)
     print(f"Task added successfully (ID:{task_id})")
@@ -64,13 +69,12 @@ def update_task(args) -> None:
         print('No tasks in database')
         return
     data = load_database()
-    dt = datetime.datetime.now()
-    dt_str = dt.strftime("%Y-%m-%d %H:%M:%S")
+    current_time = current_timestamp()
     updated = False
     for task in data:
         if task["id"] == args.task_id:
             task["description"] = args.updated_description
-            task["updatedAt"] = dt_str
+            task["updatedAt"] = current_time
             updated = True
             updated_task = task
             break
@@ -111,7 +115,7 @@ def mark_task_done(args) -> None:
         return
     update_status("done",args.task_id)
 
-def update_status(new_status, task_id):
+def update_status(new_status: str, task_id: str) -> None:
     data = load_database()
     found = False
     for task in data:
@@ -121,9 +125,8 @@ def update_status(new_status, task_id):
                 return
             else:
                 task["status"] = new_status
-                dt = datetime.datetime.now()
-                dt_str = dt.strftime("%Y-%m-%d %H:%M:%S")
-                task["updatedAt"] = dt_str
+                current_time = current_timestamp()
+                task["updatedAt"] = current_time
                 updated_task = task
                 found = True 
             break
@@ -136,16 +139,19 @@ def update_status(new_status, task_id):
 def load_database() -> list:
     try:
         with open("database.json", "r") as file:
-            return json.load(file)
+            data = json.load(file)
+            if not isinstance(data, list):
+                data = []
+            return data
     except (FileNotFoundError, IOError, json.JSONDecodeError) as e:
         print(f"had trouble performing task: {e}")
         sys.exit(1)
 
-def save_database(data):
+def save_database(data: list) -> None:
     try:
         with open("database.json", "w") as file:
             json.dump(data, file, indent=4)
-    except FileNotFoundError as e:
+    except IOError as e:
         print(f"had trouble performing task: {e}")
         sys.exit(1)
         
@@ -202,4 +208,5 @@ def main() -> None:
     args.func(args)
 
 
-main()
+if __name__ == "__main__":
+    main()
