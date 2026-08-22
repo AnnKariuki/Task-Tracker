@@ -23,30 +23,31 @@ def highest_id() -> int:
 
 def populate_database() -> None:
     initial_data = []
-    try:
-        with open(DB_PATH, "w") as file:
-            file.write(json.dumps(initial_data))
-    except IOError as e:
-        print(f"Error while initially populating the database file: {e}")
-        sys.exit(1)
-
+    with open(DB_PATH, "w") as file:
+        file.write(json.dumps(initial_data))
 
 def is_database_empty() -> bool:
-    database = Path(DB_PATH)
-    if not database.exists():
+    if not DB_PATH.exists():
         return True
-    try:
-        with open(DB_PATH, "r") as file:
-            contents = file.read()
-            if not contents or contents.isspace():
-                return True
-            elif len(json.loads(contents)) == 0:
-                return True
-    except (IOError, json.JSONDecodeError) as e:
-        print(f"Error while handling the empty database file: {e}")
-        sys.exit(1)
+
+    with open(DB_PATH, "r") as file:
+        contents = file.read()
+        if not contents or contents.isspace():
+            return True
+        if len(json.loads(contents)) == 0:
+            return True
     return False
 
+def load_database() -> list:
+    with open(DB_PATH, "r") as file:
+        data = json.load(file)
+        if not isinstance(data, list):
+            data = []
+        return data
+    
+def save_database(data: list) -> None:
+    with open(DB_PATH, "w") as file:
+        json.dump(data, file, indent=4)
 
 def add_task(args) -> None:
     if is_database_empty():
@@ -136,25 +137,6 @@ def update_status(new_status: str, task_id: str) -> None:
         return          
     save_database(data)
     print(f"updated status: task id [{updated_task['id']}], description [{updated_task['description']}], new status:[{updated_task['status']}]")
-
-def load_database() -> list:
-    try:
-        with open(DB_PATH, "r") as file:
-            data = json.load(file)
-            if not isinstance(data, list):
-                data = []
-            return data
-    except (FileNotFoundError, IOError, json.JSONDecodeError) as e:
-        print(f"had trouble performing task: {e}")
-        sys.exit(1)
-
-def save_database(data: list) -> None:
-    try:
-        with open(DB_PATH, "w") as file:
-            json.dump(data, file, indent=4)
-    except IOError as e:
-        print(f"had trouble performing task: {e}")
-        sys.exit(1)
         
 def list_tasks(args) -> None:
     if is_database_empty():
@@ -206,8 +188,17 @@ def main() -> None:
     list_subparser.set_defaults(func=list_tasks)
 
     args = parser.parse_args()
-    args.func(args)
+    try:
+        args.func(args)
 
+    except FileNotFoundError:
+        print("Database doesn't exist.")
+
+    except json.JSONDecodeError:
+        print("The database contains invalid JSON.")
+
+    except OSError as e:
+        print(f"Database error: {e}")
 
 if __name__ == "__main__":
     main()
