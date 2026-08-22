@@ -144,9 +144,7 @@ def load_database() -> list:
 def save_database(data):
     try:
         with open("database.json", "w") as file:
-            file.seek(0)
             json.dump(data, file, indent=4)
-            file.truncate()
     except FileNotFoundError as e:
         print(f"had trouble performing task: {e}")
         sys.exit(1)
