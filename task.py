@@ -6,15 +6,10 @@ from pathlib import Path
 import sys
 
 def highest_id() -> int:
-    try:
-        with open("database.json","r") as file:
-            contents = json.loads(file.read())
-            max_id = 0
-            for task in contents:
-                max_id = max(int(task["id"]), max_id)
-    except (IOError, json.JSONDecodeError) as e:
-        print(f"having trouble getting the max id assigned to one of your tasks: {e}")
-        sys.exit(1)
+    data = load_database()
+    max_id = 0
+    for task in data:
+        max_id = max(int(task["id"]), max_id)
     return max_id
 
 def populate_database() -> None:
@@ -36,7 +31,9 @@ def is_database_empty() -> bool:
             contents = file.read()
             if not contents or contents.isspace():
                 return True
-    except IOError as e:
+            elif len(json.loads(contents)) == 0:
+                return True
+    except (IOError, json.JSONDecodeError) as e:
         print(f"Error while handling the empty database file: {e}")
         sys.exit(1)
     return False
@@ -55,69 +52,52 @@ def add_task(args) -> None:
         "updatedAt": dt_str,
         "status": "todo"
     }
-
-    try:
-        with open("database.json", "r+") as file:
-            data = json.loads(file.read())
-            if not isinstance(data, list):
-                data = []
-            data.append(task)
-            file.seek(0)
-            json.dump(data, file, indent=4)
-            file.truncate()
-    except (IOError, json.JSONDecodeError) as e:
-        print(f"Error while adding task to the database file: {e}")
-        sys.exit(1)
+    data = load_database()
+    if not isinstance(data, list):
+        data = []
+    data.append(task)
+    save_database(data)
     print(f"Task added successfully (ID:{task_id})")
 
 def update_task(args) -> None:
     if is_database_empty():
         print('No tasks in database')
         return
-    try:
-        with open('database.json', 'r+') as file:
-            data = json.loads(file.read())
-            dt = datetime.datetime.now()
-            dt_str = dt.strftime("%Y-%m-%d %H:%M:%S")
-            updated = False
-            for dictionary in data:
-                if dictionary["id"] == args.task_id:
-                    dictionary["description"] = args.updated_description
-                    dictionary["updatedAt"] = dt_str
-                    updated = True
-                    break
-            if not updated:
-                print("Task does not exist in database")
-                return
-            file.seek(0)
-            json.dump(data, file, indent=4)
-            file.truncate()
-    except (IOError, json.JSONDecodeError) as e:
-        print(f"Error while updating task in the database: {e}")
-        sys.exit(1)
+    data = load_database()
+    dt = datetime.datetime.now()
+    dt_str = dt.strftime("%Y-%m-%d %H:%M:%S")
+    updated = False
+    for task in data:
+        if task["id"] == args.task_id:
+            task["description"] = args.updated_description
+            task["updatedAt"] = dt_str
+            updated = True
+            updated_task = task
+            break
+    if not updated:
+        print(f"No task found with ID '{args.task_id}'")
+        return
+    save_database(data)
+    print(f"updated: task id [{updated_task['id']}], new description [{updated_task['description']}], status:[{updated_task['status']}]")
+     
 
 def delete_task(args) -> None:
     if is_database_empty():
         print('No tasks in database')
         return
-    try:
-        with open('database.json', "r+") as file:
-            data = json.load(file)
-            deleted = False
-            for task in data:
-                if task["id"] == args.task_id:
-                    data.remove(task)
-                    deleted = True
-                    break
-            if not deleted:
-                print(f"There is no item with id {args.task_id} in our system")
-                return
-            file.seek(0)
-            json.dump(data, file, indent=4)
-            file.truncate()
-    except (IOError, json.JSONDecodeError) as e:
-        print(f"Error while deleting your task in database: {e}")
-        sys.exit(1)
+    data = load_database()
+    deleted = False
+    for task in data:
+        if task["id"] == args.task_id:
+            data.remove(task)
+            deleted = True
+            deleted_task = task
+            break
+    if not deleted:
+        print(f"There is no item with id {args.task_id} in our system")
+        return
+    save_database(data)
+    print(f"deleted: task id [{deleted_task['id']}], description [{deleted_task['description']}], status:[{deleted_task['status']}]")
 
 def mark_task_in_progress(args) -> None:
     if is_database_empty():
@@ -132,66 +112,69 @@ def mark_task_done(args) -> None:
     update_status("done",args.task_id)
 
 def update_status(new_status, task_id):
+    data = load_database()
+    found = False
+    for task in data:
+        if task["id"] == task_id:
+            if task["status"] == new_status:
+                print(f"your task is already marked as {new_status}")
+                return
+            else:
+                task["status"] = new_status
+                dt = datetime.datetime.now()
+                dt_str = dt.strftime("%Y-%m-%d %H:%M:%S")
+                task["updatedAt"] = dt_str
+                updated_task = task
+                found = True 
+            break
+    if not found:
+        print(f"no task with id {task_id}")
+        return          
+    save_database(data)
+    print(f"updated status: task id [{updated_task['id']}], description [{updated_task['description']}], new status:[{updated_task['status']}]")
+
+def load_database() -> list:
     try:
-        with open('database.json', "r+") as file:
-            data = json.load(file)
-            found = False
-            for task in data:
-                if task["id"] == task_id:
-                    if task["status"] == new_status:
-                        print(f"your task is already marked as {new_status}")
-                        return
-                    else:
-                        task["status"] = new_status
-                        dt = datetime.datetime.now()
-                        dt_str = dt.strftime("%Y-%m-%d %H:%M:%S")
-                        task["updatedAt"] = dt_str
-                        found = True 
-                    break
-            if not found:
-                print(f"no task with id {task_id}")
-                return          
+        with open("database.json", "r") as file:
+            return json.load(file)
+    except (FileNotFoundError, IOError, json.JSONDecodeError) as e:
+        print(f"had trouble performing task: {e}")
+        sys.exit(1)
+
+def save_database(data):
+    try:
+        with open("database.json", "w") as file:
             file.seek(0)
             json.dump(data, file, indent=4)
             file.truncate()
-    except (IOError, json.JSONDecodeError) as e:
-        print(f"Had trouble updating the status of your task: {e}")    
+    except FileNotFoundError as e:
+        print(f"had trouble performing task: {e}")
         sys.exit(1)
-
+        
 def list_tasks(args) -> None:
     if is_database_empty():
         print('No tasks in database')
         return
-    try:
-        with open("database.json", "r") as file:
-            data = json.load(file)
-            if not args.status:
-                full_list = data
-            else:
-                full_list = [task for task in data if task["status"] == args.status]
-            if not full_list:
-                print(f"No task with status {args.status}")
-            else:
-                # print(*full_list, sep='\n')
-                # pretty print
-                for task in full_list:
-                    print(f"ID: {task['id']}")
-                    print(f"description: {task['description']}")
-                    print(f"created at: {task['createdAt']}")
-                    print(f"updated at: {task['updatedAt']}")
-                    print(f"status: {task['status']}")
-                    print("\n")
-
-    except (IOError, json.JSONDecodeError) as e:
-        print(f"error listing your tasks: {e}")
+    data = load_database()
+    if not args.status:
+        full_list = data
+    else:
+        full_list = [task for task in data if task["status"] == args.status]
+    if not full_list:
+        print(f"No task with status {args.status}")
+    else:
+        for task in full_list:
+            print(f"ID: {task['id']}")
+            print(f"description: {task['description']}")
+            print(f"created at: {task['createdAt']}")
+            print(f"updated at: {task['updatedAt']}")
+            print(f"status: {task['status']}")
+            print()
 
 def main() -> None:
-    # 1. Create top-level parser
     parser = argparse.ArgumentParser(prog="Taskly", description="Welcome to taskly. Your one stop shop to track and manage your tasks", epilog="Thanks for visiting")
-    # 2. Add subparsers container. subcommand must be provided
     subparsers = parser.add_subparsers(title="What you can do in taskly",  description="Run any command with -h for more information, e.g. 'Taskly list -h'", required=True)
 
-    # 3. Define the 'add' subcommand
     add_subparser = subparsers.add_parser('add', help='To add a task run: program_name add task_description')
     add_subparser.add_argument('new_description')
     add_subparser.set_defaults(func=add_task)
@@ -217,7 +200,6 @@ def main() -> None:
     list_subparser.add_argument('status', nargs='?', choices=['todo', 'in-progress', 'done'],  help="Filter tasks by status: todo, in-progress, or done")
     list_subparser.set_defaults(func=list_tasks)
 
-    # parse the args and call whatever function was selected
     args = parser.parse_args()
     args.func(args)
 
