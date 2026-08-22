@@ -88,7 +88,7 @@ def update_task(args) -> None:
                     break
             if not updated:
                 print("Task does not exist in database")
-                sys.exit(1)
+                return
             file.seek(0)
             json.dump(data, file, indent=4)
             file.truncate()
@@ -111,7 +111,7 @@ def delete_task(args) -> None:
                     break
             if not deleted:
                 print(f"There is no item with id {args.task_id} in our system")
-                sys.exit(1)
+                return
             file.seek(0)
             json.dump(data, file, indent=4)
             file.truncate()
@@ -119,7 +119,45 @@ def delete_task(args) -> None:
         print(f"Error while deleting your task in database: {e}")
         sys.exit(1)
 
-        
+def mark_task_in_progress(args) -> None:
+    if is_database_empty():
+        print('No tasks in database')
+        return
+    update_status("in-progress",args.task_id)
+
+def mark_task_done(args) -> None:
+    if is_database_empty():
+        print('No tasks in database')
+        return
+    update_status("done",args.task_id)
+
+def update_status(new_status, task_id):
+    try:
+        with open('database.json', "r+") as file:
+            data = json.load(file)
+            found = False
+            for task in data:
+                if task["id"] == task_id:
+                    if task["status"] == new_status:
+                        print(f"your task is already marked as {new_status}")
+                        return
+                    else:
+                        task["status"] = new_status
+                        dt = datetime.datetime.now()
+                        dt_str = dt.strftime("%Y-%m-%d %H:%M:%S")
+                        task["updatedAt"] = dt_str
+                        found = True 
+                    break
+            if not found:
+                print(f"no task with id {task_id}")
+                return          
+            file.seek(0)
+            json.dump(data, file, indent=4)
+            file.truncate()
+    except (IOError, json.JSONDecodeError) as e:
+        print(f"Had trouble updating the status of your task: {e}")    
+        sys.exit(1)
+  
 def main() -> None:
     # 1. Create top-level parser
     parser = argparse.ArgumentParser(prog="Taskly", description="Welcome to taskly. Your one stop shop to track and manage your tasks", epilog="Thanks for visiting")
@@ -139,6 +177,14 @@ def main() -> None:
     delete_subparser = subparsers.add_parser('delete', help='To delete a task run: program_name delete task_id')
     delete_subparser.add_argument('task_id')
     delete_subparser.set_defaults(func=delete_task)
+
+    mark_in_progress_subparser = subparsers.add_parser('mark-in-progress', help='To mark a task as in progress run: program_name mark-in-progress task_id')
+    mark_in_progress_subparser.add_argument('task_id')
+    mark_in_progress_subparser.set_defaults(func=mark_task_in_progress)
+
+    mark_done_subparser = subparsers.add_parser('mark-done', help='To mark a task as done run: program_name mark-done task_id')
+    mark_done_subparser.add_argument('task_id')
+    mark_done_subparser.set_defaults(func=mark_task_done)
 
     # parse the args and call whatever function was selected
     args = parser.parse_args()
