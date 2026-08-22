@@ -5,15 +5,17 @@ import datetime
 from pathlib import Path
 import sys
 
-def get_db_size()-> int:
+def highest_id() -> int:
     try:
         with open("database.json","r") as file:
             contents = json.loads(file.read())
-            db_size = len(contents)
+            max_id = 0
+            for task in contents:
+                max_id = max(int(task["id"]), max_id)
     except (IOError, json.JSONDecodeError) as e:
-        print(f"having trouble getting length of file: {e}")
+        print(f"having trouble getting the max id assigned to one of your tasks: {e}")
         sys.exit(1)
-    return db_size
+    return max_id
 
 def populate_database() -> None:
     initial_data = []
@@ -45,7 +47,7 @@ def add_task(args) -> None:
         populate_database()
     dt = datetime.datetime.now()
     dt_str = dt.strftime("%Y-%m-%d %H:%M:%S")
-    task_id = str(get_db_size()+ 1)
+    task_id = str(highest_id()+ 1)
     task = {
         "id":task_id,
         "description": args.new_description,
@@ -62,6 +64,7 @@ def add_task(args) -> None:
             data.append(task)
             file.seek(0)
             json.dump(data, file, indent=4)
+            file.truncate()
     except (IOError, json.JSONDecodeError) as e:
         print(f"Error while adding task to the database file: {e}")
         sys.exit(1)
@@ -112,7 +115,7 @@ def delete_task(args) -> None:
             file.seek(0)
             json.dump(data, file, indent=4)
             file.truncate()
-    except IOError as e:
+    except (IOError, json.JSONDecodeError) as e:
         print(f"Error while deleting your task in database: {e}")
         sys.exit(1)
 
