@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+DB_PATH = Path(__file__).resolve().parent / "database.json"
 
 def current_timestamp() -> str:
     dt = datetime.datetime.now()
@@ -23,7 +24,7 @@ def highest_id() -> int:
 def populate_database() -> None:
     initial_data = []
     try:
-        with open("database.json", "w") as file:
+        with open(DB_PATH, "w") as file:
             file.write(json.dumps(initial_data))
     except IOError as e:
         print(f"Error while initially populating the database file: {e}")
@@ -31,11 +32,11 @@ def populate_database() -> None:
 
 
 def is_database_empty() -> bool:
-    database = Path("./database.json")
+    database = Path(DB_PATH)
     if not database.exists():
         return True
     try:
-        with open("database.json", "r") as file:
+        with open(DB_PATH, "r") as file:
             contents = file.read()
             if not contents or contents.isspace():
                 return True
@@ -138,7 +139,7 @@ def update_status(new_status: str, task_id: str) -> None:
 
 def load_database() -> list:
     try:
-        with open("database.json", "r") as file:
+        with open(DB_PATH, "r") as file:
             data = json.load(file)
             if not isinstance(data, list):
                 data = []
@@ -149,7 +150,7 @@ def load_database() -> list:
 
 def save_database(data: list) -> None:
     try:
-        with open("database.json", "w") as file:
+        with open(DB_PATH, "w") as file:
             json.dump(data, file, indent=4)
     except IOError as e:
         print(f"had trouble performing task: {e}")
