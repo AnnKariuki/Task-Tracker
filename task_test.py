@@ -24,7 +24,6 @@ class TestTaskTrackerMethods(unittest.TestCase):
             },
         ]
         task.add_task(args)
-        # we have this after we call add task because it is only called after the mthod runs
         mock_save_database.assert_called_once()
         mock_save_database.assert_called_with([
             {
