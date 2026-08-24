@@ -120,5 +120,28 @@ class TestTaskTrackerMethods(unittest.TestCase):
             },
         ])
 
+    @patch("task.is_database_empty")
+    @patch("task.update_status")
+    def test_mark_task_done(self, mock_update_status, mock_database_empty):
+        mock_database_empty.return_value = False
+        args = argparse.Namespace(task_id="1")
+        task.mark_task_done(args)
+        mock_update_status.assert_called_once_with(
+            "done",
+            "1"
+        )
+
+    @patch("task.is_database_empty")
+    @patch("task.update_status")
+    def test_mark_task_in_progress(self, mock_update_status, mock_database_empty):
+        mock_database_empty.return_value = False
+        args = argparse.Namespace(task_id="1")
+        task.mark_task_in_progress(args)
+        mock_update_status.assert_called_once_with(
+            "in-progress",
+            "1"
+        )
+ 
+
 if __name__ == '__main__':
     unittest.main()
