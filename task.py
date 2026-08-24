@@ -3,7 +3,6 @@ import argparse
 import json
 import datetime
 from pathlib import Path
-import sys
 
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 DB_PATH = Path(__file__).resolve().parent / "database.json"
