@@ -12,7 +12,7 @@ It allows you to add, update, delete and list all your tasks all from your comma
 - **Mark as Done** -> change a task’s status to `done`.
 - **Delete a Task** -> Remove tasks by their ID.
 - **List Tasks** -> Display all tasks or filter them by:
-  - **status**: `todo`, `in-progress`, `done`, or `all`
+  - **status**: `todo`, `in-progress`, `done`
 
 ## Usage
 - add                 To add a task run: program_name add task_description
