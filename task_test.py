@@ -141,6 +141,77 @@ class TestTaskTrackerMethods(unittest.TestCase):
             "in-progress",
             "1"
         )
+
+    @patch("task.print")
+    @patch("task.load_database")
+    @patch("task.is_database_empty")
+    def test_list_all_tasks(
+        self,
+        mock_is_database_empty,
+        mock_load_database,
+        mock_print,
+    ):
+        mock_is_database_empty.return_value = False
+
+        mock_load_database.return_value = [
+            {
+                "id": "1",
+                "description": "Buy groceries",
+                "createdAt": "2026-08-23 10:00:00",
+                "updatedAt": "2026-08-23 10:00:00",
+                "status": "todo",
+            }
+        ]
+
+        args = argparse.Namespace(
+            status=None
+        )
+
+        task.list_tasks(args)
+
+        mock_print.assert_any_call("ID: 1")
+        mock_print.assert_any_call("description: Buy groceries")
+        mock_print.assert_any_call("created at: 2026-08-23 10:00:00")
+        mock_print.assert_any_call("updated at: 2026-08-23 10:00:00")
+        mock_print.assert_any_call("status: todo")
+
+    @patch("task.print")
+    @patch("task.load_database")
+    @patch("task.is_database_empty")
+    def test_list_done_tasks(
+        self,
+        mock_is_database_empty,
+        mock_load_database,
+        mock_print,
+    ):
+        mock_is_database_empty.return_value = False
+
+        mock_load_database.return_value = [
+            {
+                "id": "1",
+                "description": "Buy groceries",
+                "createdAt": "2026-08-23 10:00:00",
+                "updatedAt": "2026-08-23 10:00:00",
+                "status": "todo",
+            },
+            {
+                "id": "2",
+                "description": "Clean room",
+                "createdAt": "2026-08-23 10:00:00",
+                "updatedAt": "2026-08-23 10:00:00",
+                "status": "done",
+            },
+        ]
+
+        args = argparse.Namespace(
+            status="done"
+        )
+
+        task.list_tasks(args)
+
+        mock_print.assert_any_call("ID: 2")
+        mock_print.assert_any_call("description: Clean room")
+        mock_print.assert_any_call("status: done")
  
 
 if __name__ == '__main__':
