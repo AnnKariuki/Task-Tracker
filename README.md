@@ -1,5 +1,5 @@
 
-# TASK TRACER CLI APP
+# TASK TRACKER CLI APP
 
 ## Description
 This is a simple lightweight command-line-interface(CLI) project used to track and manage your tasks.
@@ -22,7 +22,7 @@ It allows you to add, update, delete and list all your tasks all from your comma
 - mark-done           To mark a task as done run: program_name mark-done task_id
 - list                To list tasks run: program_name list [status]
 
-BONUS - *** Run any command with -h for more information e.g. 'Taskly list -h'***
+BONUS - **Run any command with -h for more information e.g. 'Taskly list -h'**
 
 ## ⚡ Installation
 
