@@ -21,7 +21,7 @@ def highest_id() -> int:
     return max_id
 
 def populate_database() -> None:
-    initial_data = []
+    initial_data: list[dict] = []
     with open(DB_PATH, "w") as file:
         file.write(json.dumps(initial_data))
 
